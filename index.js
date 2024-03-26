@@ -10,13 +10,41 @@ let emails = [];
 let currentIndex = 0;
 
 // Function to generate random text with 7 alphabetic characters without commas
-function generateRandomText() {
-    const alphabets = 'abcdefghijklmnopqrstuvwxyz';
-    let text = '';
-    for (let i = 0; i < 7; i++) {
-        text += alphabets.charAt(Math.floor(Math.random() * alphabets.length));
+// function generateRandomText() {
+//     const alphabets = 'abcdefghijklmnopqrstuvwxyz';
+//     let text = '';
+//     for (let i = 0; i < 7; i++) {
+//         text += alphabets.charAt(Math.floor(Math.random() * alphabets.length));
+//     }
+//     return text;
+// }
+
+async function generatefirst() {
+    try {
+        // Read the contents of the "firstname.txt" file
+        const data = await fs.readFile('firstname.txt', 'utf-8');
+        const firstNames = JSON.parse(data);
+
+        // Select a random name from the array
+        return firstNames[Math.floor(Math.random() * firstNames.length)];
+    } catch (error) {
+        console.error('Error reading or parsing file:', error);
+        return null;
     }
-    return text;
+}
+
+async function generatelast() {
+    try {
+        // Read the contents of the "firstname.txt" file
+        const data = await fs.readFile('lastname.txt', 'utf-8');
+        const firstNames = JSON.parse(data);
+
+        // Select a random name from the array
+        return firstNames[Math.floor(Math.random() * firstNames.length)];
+    } catch (error) {
+        console.error('Error reading or parsing file:', error);
+        return null;
+    }
 }
 
 // Function to generate random US number starting with 9435 and followed by 6 random digits
@@ -99,9 +127,27 @@ async function saveEmail(email) {
 }
 
 // Endpoint to generate random text with 7 alphabetic characters without commas
-app.get('/randomtext', (req, res) => {
-    const randomText = generateRandomText();
-    res.send(randomText);
+// app.get('/randomtext', (req, res) => {
+//     const randomText = await generateRandomText();
+//     res.send(randomText);
+// });
+
+
+
+app.get('/randomfirst', (req, res) => {
+    generatefirst().then(randomName => {
+        res.send(randomName);
+    }).catch(error => {
+        res.send('Error generating random text:', error);
+    });
+});
+
+app.get('/randomlast', (req, res) => {
+    generatelast().then(randomName => {
+        res.send(randomName);
+    }).catch(error => {
+        res.send('Error generating random text:', error);
+    });
 });
 
 // Endpoint to generate a random US number starting with 9435 and followed by 6 random digits
