@@ -17,7 +17,9 @@ let currentIndex = 0;
 //         text += alphabets.charAt(Math.floor(Math.random() * alphabets.length));
 //     }
 //     return text;
-// }
+// 
+
+
 
 async function generatefirst() {
     try {
@@ -192,13 +194,15 @@ app.get('/save/:email', (req, res) => {
     });
 });
 
-app.get('/emailid', (req, res) => {
+app.get('/emailid', async (req, res) => {
     if (currentIndex < emails.length) {
         const email = emails[currentIndex++];
         console.log(email);
         res.send(email);
     } else {
+
         res.status(404).send('No more email IDs available');
+        await sendTelegramAlert('Alert! No More Emailid');
     }
 });
 
@@ -209,6 +213,7 @@ app.get('/otp', async (req, res) => {
         res.send(otp);
     } else {
         res.status(404).send('No email ID available');
+        await sendTelegramAlert('Alert! No More Emailid');
     }
 });
 
