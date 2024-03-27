@@ -2,6 +2,8 @@ const express = require('express');
 const { chromium } = require('playwright');
 const fs = require('fs').promises; // Using promises version of fs for async file reading
 const fetch = require('node-fetch');
+require('dotenv').config();
+
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -18,6 +20,15 @@ let currentIndex = 0;
 //     }
 //     return text;
 // 
+const BOT_TOKEN = process.env.BOT_TOKEN;
+const CHAT_ID = process.env.CHAT_ID;
+
+
+// Function to send alert message to Telegram bot
+async function sendTelegramAlert(message) {
+    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`;
+    await fetch(url);
+}
 
 
 
@@ -223,6 +234,20 @@ app.get('/indexback', (req, res) => {
         res.status(200).send('Index decremented successfully.');
     } else {
         res.status(404).send('Index is already at the beginning.');
+    }
+});
+
+// Endpoint to send alert to Telegram bot
+app.get('/alert', async (req, res) => {
+    try {
+        // Send alert message to Telegram bot
+        await sendTelegramAlert('Alert! You Got Finished');
+
+        // Respond with success message
+        res.status(200).send('Alert sent to Telegram bot.');
+    } catch (error) {
+        console.error('Error sending alert:', error);
+        res.status(500).send('Error sending alert to Telegram bot.');
     }
 });
 
