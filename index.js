@@ -205,17 +205,17 @@ app.get('/save/:email', (req, res) => {
     });
 });
 
-app.get('/emailid', async (req, res) => {
-    if (currentIndex < emails.length) {
-        const email = emails[currentIndex++];
-        console.log(email);
-        res.send(email);
-    } else {
+// app.get('/emailid', async (req, res) => {
+//     if (currentIndex < emails.length) {
+//         const email = emails[currentIndex++];
+//         console.log(email);
+//         res.send(email);
+//     } else {
 
-        res.status(404).send('No more email IDs available');
-        await sendTelegramAlert('Alert! No More Emailid');
-    }
-});
+//         res.status(404).send('No more email IDs available');
+//         await sendTelegramAlert('Alert! No More Emailid');
+//     }
+// });
 
 app.get('/otp', async (req, res) => {
     if (currentIndex > 0 && currentIndex <= emails.length) {
@@ -251,14 +251,42 @@ app.get('/alert', async (req, res) => {
     }
 });
 
-app.listen(port, async () => {
-    console.log(`Server is running on port ${port}`);
+app.get('/emailid', async (req, res) => {
+    try {
+        if (currentIndex < emails.length) {
+            const email = emails[currentIndex++];
+            console.log(email);
+            res.send(email);
+            console.log(currentIndex);
+        } else {
+            res.status(404).send('No more email IDs available');
+            await sendTelegramAlert('Alert! No More Emailid');
+            console.log(currentIndex);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
+async function updateEmailList() {
     try {
         const emailList = await fs.readFile('valid_emails.txt', 'utf8');
-        emails = emailList.trim().split('\n');
+        emails = emailList.trim().split('\n').filter(email => email.trim() !== '');
+        // currentIndex = 0;
         console.log(emails);
+        console.log(currentIndex)
     } catch (error) {
         console.error('Error reading email list:', error);
     }
+}
+
+app.listen(port, async () => {
+    console.log(`Server is running on port ${port}`);
+
+    // Initial update of email list
+    await updateEmailList();
+
+    // Periodically update email list (every few minutes)
+    setInterval(updateEmailList, 300000); // 300000 ms = 5 minutes
 });
